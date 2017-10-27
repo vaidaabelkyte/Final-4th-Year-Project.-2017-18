@@ -1,5 +1,4 @@
-package com.tipTopBites.domain;
-
+package com.tipTopBites.domain.security;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -17,29 +16,28 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.tipTopBites.domain.security.Authority;
-import com.tipTopBites.domain.security.UserRole;
+
 
 @Entity
-public class User implements UserDetails {
+public class User implements UserDetails{
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="id", nullable=false, updatable=false)
+	@Column(name="id", nullable = false, updatable = false)
 	private Long id;
 	private String username;
 	private String password;
 	private String firstName;
 	private String lastName;
 	
-	@Column(name="email", nullable=false, updatable=false)
+	@Column(name="email", nullable = false, updatable = false)
 	private String email;
 	private String phone;
 	private boolean enabled=true;
 	
-	@OneToMany(mappedBy="role",  cascade=CascadeType.ALL, fetch=FetchType.EAGER)
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JsonIgnore
-	private Set<UserRole> userRoles =new HashSet<>();
+	private Set<UserRole> userRoles = new HashSet<>();
 	
 	public Long getId() {
 		return id;
@@ -84,7 +82,6 @@ public class User implements UserDetails {
 		this.phone = phone;
 	}
 	
-	
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
@@ -96,9 +93,10 @@ public class User implements UserDetails {
 	}
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		Set<GrantedAuthority> authorities=new HashSet<>();
-		userRoles.forEach(ur -> authorities.add (new Authority(ur.getRole().getName())) );
-		return authorities;
+		Set<GrantedAuthority> authorites = new HashSet<>();
+		userRoles.forEach(ur -> authorites.add(new Authority(ur.getRole().getName())));
+		
+		return authorites;
 	}
 	@Override
 	public boolean isAccountNonExpired() {
@@ -116,12 +114,10 @@ public class User implements UserDetails {
 		return true;
 	}
 	
-	
-	
 	@Override
 	public boolean isEnabled() {
 		return enabled;
 	}
 	
-
+	
 }

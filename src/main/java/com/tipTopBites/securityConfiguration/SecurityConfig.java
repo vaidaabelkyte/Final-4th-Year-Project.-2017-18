@@ -10,56 +10,57 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.stereotype.Service;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled=true)
-@Service
+
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
 	private Environment env;
+
 	@Autowired
-	private UserSecurityService usersecurityservice;
+	private UserSecurityService userSecurityService;
+
 	private BCryptPasswordEncoder passwordEncoder() {
 		return SecurityUtility.passwordEncoder();
-		
 	}
-	
-	private static final String [] PUBLIC_MATCHERS= {
+
+	private static final String[] PUBLIC_MATCHERS = {
 			"/css/**",
 			"/js/**",
 			"/image/**",
 			"/",
-			"/myAccount"
+			"/newUser",
+			"/forgetPassword",
+			"/login",
+			"/fonts/**"
 	};
-	 @Override
-	protected void configure (HttpSecurity http) throws Exception 
-	{
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
 		http
-		.authorizeRequests().
-		/*antMatchers("/**").*/
-		antMatchers(PUBLIC_MATCHERS).
-		permitAll().anyRequest().authenticated();
-		
+			.authorizeRequests().
+		/*	antMatchers("/**").*/
+			antMatchers(PUBLIC_MATCHERS).
+			permitAll().anyRequest().authenticated();
+
 		http
-		.csrf().disable().cors().disable()
-		.formLogin().failureUrl("/login?error").defaultSuccessUrl("/")
-		.loginPage("/login").permitAll()
-		.and()
-		.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-		.logoutSuccessUrl("/?logout").deleteCookies("remember-me").permitAll()
-		.and()
-		.rememberMe();
-		
-		
+			.csrf().disable().cors().disable()
+			.formLogin().failureUrl("/login?error")
+			/*.defaultSuccessUrl("/")*/
+			.loginPage("/login").permitAll()
+			.and()
+			.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+			.logoutSuccessUrl("/?logout").deleteCookies("remember-me").permitAll()
+			.and()
+			.rememberMe();
 	}
-	
+
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(usersecurityservice).passwordEncoder(passwordEncoder());
-		
+		auth.userDetailsService(userSecurityService).passwordEncoder(passwordEncoder());
 	}
 
 }
